@@ -2,7 +2,8 @@
 
 var synth = window.speechSynthesis;
 
-var inputForm = document.querySelector('form');
+var playButton = document.querySelector('#playButton');
+var pauseButton = document.querySelector('#pauseButton');
 var inputTxt = document.querySelector('.txt');
 var voiceSelect = document.querySelector('select');
 
@@ -12,6 +13,45 @@ var rate = document.querySelector('#rate');
 var rateValue = document.querySelector('.rate-value');
 
 var voices = [];
+
+var timerInterval;
+var timerMs = 0;
+var lastInterval;
+var callouts;
+var calloutsIndex = 0;
+
+
+function timer() {
+    var now = Date.now();
+    var diff = now-lastInterval;
+    lastInterval = now;
+    timerMs += diff
+
+    while (calloutsIndex < callouts.length && timerMs/1000 >= callouts[calloutsIndex][0]) {
+        speakText(callouts[calloutsIndex][1])
+        calloutsIndex++;
+        
+        if (calloutsIndex >= callouts.length) {
+            clearInterval(timerInterval);
+        }
+    }
+}
+
+function speakText(txt) {
+    console.log(txt);
+    if (txt.startsWith("#")) { return; }
+
+    var utterThis = new SpeechSynthesisUtterance(txt);
+    var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+    for (i = 0; i < voices.length; i++) {
+        if (voices[i].name === selectedOption) {
+            utterThis.voice = voices[i];
+        }
+    }
+    utterThis.pitch = pitch.value;
+    utterThis.rate = rate.value;
+    synth.speak(utterThis);
+}
 
 function populateVoiceList() {
     voices = synth.getVoices();
@@ -35,27 +75,57 @@ if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = populateVoiceList;
 }
 
-inputForm.onsubmit = function (event) {
+const callRegex = /((\d*:?)\d+(\.\d+)?)\s+(.+)/;
+
+parseTime = function(time) {
+    var tokens = time.split(":");
+    var seconds = 0;
+
+    while (tokens.length > 0) {
+        seconds *= 60;
+        var token = tokens.shift(0);
+        seconds += Number.parseFloat(token);
+    }
+
+    return seconds;
+}
+
+parseCall = function(line) {
+    matches = line.match(callRegex);
+    
+    if (matches != null) {
+        return [[parseTime(matches[1]), matches[4]]];
+    }
+
+    return null;
+}
+
+parseCalls = function(txt) {
+    lines = txt.split(/\r?\n/);
+    return lines.flatMap(line => parseCall(line) || [])
+}
+
+playButton.onclick = function (event) {
     event.preventDefault();
 
-    var utterThis = new SpeechSynthesisUtterance(inputTxt.value);
-    var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
-    for (i = 0; i < voices.length; i++) {
-        if (voices[i].name === selectedOption) {
-            utterThis.voice = voices[i];
+    callouts = parseCalls(inputTxt.value);
+    console.log(callouts);
+    if (callouts && callouts.length > 0 && calloutsIndex < callouts.length) {
+        while(timerMs > 0 && timerMs/1000 >= callouts[calloutsIndex][0]) {
+            calloutsIndex++;
         }
     }
-    utterThis.pitch = pitch.value;
-    utterThis.rate = rate.value;
-    synth.speak(utterThis);
 
-    utterThis.onpause = function (event) {
-        var char = event.utterance.text.charAt(event.charIndex);
-        console.log('Speech paused at character ' + event.charIndex + ' of "' +
-            event.utterance.text + '", which is "' + char + '".');
-    }
-    inputTxt.blur();
+    lastInterval = Date.now();
+    timer()
+    timerInterval = setInterval(timer, 100);
 }
+pauseButton.onclick = function (event) {
+    event.preventDefault();
+    
+    clearInterval(timerInterval);
+}
+
 pitch.onchange = function () {
     pitchValue.textContent = pitch.value;
 }
