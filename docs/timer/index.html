@@ -1,0 +1,52 @@
+<!-- from https://github.com/mdn/web-speech-api/tree/master/speak-easy-synthesis -->
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="../taedancesmall.gif" type="image/gif"/>
+</head>
+
+<body>
+    <h1>W1 Timeline Callouts</h1>
+    
+    <div class="instructions">
+      <ul>
+        <li>Copy your time line from a spreadsheet into the text box below.</li>
+        <li>Lines should be formatted like: "1:57	Experimental Fireplume".</li>
+        <li>The time to make the callout, and the text to read need to be separated by whitespace.</li>
+        <li>Time can either be the raw value in seconds (e.g "197.2"), or formatted as mm:ss, (e.g 3:17.2).</li>
+        <li>The text can be whatever format, but I can't promise that it will be read out properly.</li>
+        <li>If you want some callout to be skipped, you can prefix the text with a # (see example).</li>
+      </ul>
+    </div>
+
+    <form>
+      <div class="timerControls">
+        <div id="timerDisplay">00:00.00</div>
+        <button id="playButton">Play</button>
+        <button id="pauseButton">Pause</button>
+        <button id="resetButton">Reset</button>
+      </div>
+      <textarea name="paragraph_text" cols="10" rows="20" class="txt">
+0.00 Example Call 1
+Random stuff filtered out
+4.20 Second Callout
+6.00 #ignored callout
+0:07.2 Using mm:ss
+      </textarea>
+      <div>
+        <label for="rate">Rate</label><input type="range" min="0.5" max="2" value="1" step="0.1" id="rate">
+        <div class="rate-value">1</div>
+        <div class="clearfix"></div>
+      </div>
+      <div>
+        <label for="pitch">Pitch</label><input type="range" min="0" max="2" value="1" step="0.1" id="pitch">
+        <div class="pitch-value">1</div>
+        <div class="clearfix"></div>
+      </div>
+      <select>
+    
+      </select>
+    </form>
+    <div class="contact">contact tae if issues</div>
+    <script src="script.js"></script> 
+</body>
