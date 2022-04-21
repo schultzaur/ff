@@ -29,7 +29,7 @@ body, html {
   }
   
   .txt {
-    width: 80%;
+    width: 40%;
   }
   
   select {
@@ -54,6 +54,22 @@ body, html {
     width: 10%;
     line-height: 1.5;
   }
+
+  .timerControls{
+    width: 30%;
+    margin: auto;
+  }
+
+  #timerDisplay {
+    float: left;
+    border: 1px solid black;
+    padding-right: 1em;
+  }
+
+  button {
+    float: left;
+    overflow: auto;
+  }
   
   .rate-value, .pitch-value {
     float: right;
@@ -73,4 +89,18 @@ body, html {
   
   .controls button {
     padding: 10px;
+  }
+
+  .instructions {
+    width: 85%;
+    margin: auto;
+  }
+  .instructions > ul {
+    display: block;
+  }
+
+  .contact {
+    text-align: center;
+    color: grey;
+    font-size: small;
   }

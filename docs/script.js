@@ -2,8 +2,11 @@
 
 var synth = window.speechSynthesis;
 
+var timerDisplay = document.querySelector('#timerDisplay');
 var playButton = document.querySelector('#playButton');
 var pauseButton = document.querySelector('#pauseButton');
+var resetButton = document.querySelector('#resetButton');
+
 var inputTxt = document.querySelector('.txt');
 var voiceSelect = document.querySelector('select');
 
@@ -20,12 +23,16 @@ var lastInterval;
 var callouts;
 var calloutsIndex = 0;
 
+function updateTimerDisplay() {
+    timerDisplay.innerHTML = new Date(timerMs).toISOString().substring(14, 22);
+}
 
 function timer() {
     var now = Date.now();
     var diff = now-lastInterval;
     lastInterval = now;
     timerMs += diff
+    updateTimerDisplay();
 
     while (calloutsIndex < callouts.length && timerMs/1000 >= callouts[calloutsIndex][0]) {
         speakText(callouts[calloutsIndex][1])
@@ -109,7 +116,8 @@ playButton.onclick = function (event) {
     event.preventDefault();
 
     callouts = parseCalls(inputTxt.value);
-    console.log(callouts);
+    calloutsIndex = 0;
+
     if (callouts && callouts.length > 0 && calloutsIndex < callouts.length) {
         while(timerMs > 0 && timerMs/1000 >= callouts[calloutsIndex][0]) {
             calloutsIndex++;
@@ -118,12 +126,19 @@ playButton.onclick = function (event) {
 
     lastInterval = Date.now();
     timer()
-    timerInterval = setInterval(timer, 100);
+    timerInterval = setInterval(timer, 10);
 }
 pauseButton.onclick = function (event) {
     event.preventDefault();
-    
     clearInterval(timerInterval);
+}
+
+resetButton.onclick = function (event) {
+    event.preventDefault();
+    timerMs = 0;
+    clearInterval(timerInterval);
+
+    updateTimerDisplay();
 }
 
 pitch.onchange = function () {
